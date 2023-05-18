@@ -29,23 +29,23 @@ pub enum URLToken {
     #[regex(r#"href=[^>]*>[^<]*"#, extract_link_info)]
     Link((LinkUrl, LinkText)),
 
-    #[regex(r#"(<p[^>]*>|</p>)[^<]*"#)]
+    #[regex(r#"(<p[^>]*>|</p>)[^<]*"#, |_| logos::Skip)]
     Paragraf,
-    #[regex(r#"(<h1[^>]*>|</h1>)[^<]*"#)]
+    #[regex(r#"(<h1[^>]*>|</h1>)[^<]*"#, |_| logos::Skip)]
     Header,
-    #[regex(r#"<head>([^<]|<meta|<title|</title)*</head>\s*"#)]
+    #[regex(r#"<head>([^<]|<meta|<title|</title)*</head>\s*"#, |_| logos::Skip)]
     Head,
-    #[regex(r#"</html>\s*"#)]
+    #[regex(r#"</html>\s*"#, |_| logos::Skip)]
     Html,
-    #[regex(r#"<![^<]*<html>\s*"#)]
+    #[regex(r#"<![^<]*<html>\s*"#, |_| logos::Skip)]
     Doctype,
-    #[regex(r#"(<body[^>]*>|</body>)[^<]*"#)]
+    #[regex(r#"(<body[^>]*>|</body>)[^<]*"#, |_| logos::Skip)]
     Body,
-    #[regex(r#"(<a\s*|</a\s*>[^<]*)"#)]
+    #[regex(r#"(<a\s*|</a\s*>[^<]*)"#, |_| logos::Skip)]
     A,
-    #[regex(r#"name="[^"]*"\s*"#)]
+    #[regex(r#"name="[^"]*"\s*"#, |_| logos::Skip)]
     Name,
-    #[regex(r#">[^<]*"#)]
+    #[regex(r#">[^<]*"#, |_| logos::Skip)]
     Rest,
 
     // Catch any error
