@@ -37,7 +37,7 @@ pub enum URLToken {
     Head,
     #[regex(r#"</html>\s*"#, |_| logos::Skip)]
     Html,
-    #[regex(r#"."#, |_| logos::Skip)]
+    #[regex(r#"<![^<]*<html>"#, |_| logos::Skip)]
     Doctype,
 
     // Catch any error
