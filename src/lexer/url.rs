@@ -1,4 +1,4 @@
-use logos::{Lexer, Logos, Source};
+use logos::{Lexer, Logos};
 use std::fmt::{Display, Formatter};
 
 /// Tuple struct for link URLs
@@ -61,17 +61,17 @@ fn extract_link_info(lex: &mut Lexer<URLToken>) -> (LinkUrl, LinkText) {
     let mut offset = url.find("href").unwrap();
     url.drain(..offset);
 
-    let mut offset = url.find('"').unwrap() + 1;
+    offset = url.find('"').unwrap() + 1;
     url.drain(..offset);
 
     offset = url.find('"').unwrap();
-    let linkUrl = LinkUrl(url[..offset].to_string().clone());
+    let link_url = LinkUrl(url[..offset].to_string().clone());
     url.drain(..offset);
 
     offset = url.find('>').unwrap() + 1;
     url.drain(..offset);
 
-    let linkText = LinkText(url[..].to_string().clone());
+    let link_text = LinkText(url[..].to_string().clone());
 
-    (linkUrl,linkText)
+    (link_url,link_text)
 }
