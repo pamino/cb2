@@ -41,7 +41,7 @@ pub enum URLToken {
     Doctype,
     #[regex(r#"(<body[^>]*>|</body>)[^<]*"#)]
     Body,
-    #[regex(r#"(<a |</a\s*>[^<]*)"#)]
+    #[regex(r#"(<a\s*|</a\s*>[^<]*)"#)]
     A,
     #[regex(r#"name="[^"]*"\s*"#)]
     Name,
