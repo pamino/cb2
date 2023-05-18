@@ -26,11 +26,19 @@ impl Display for LinkText {
 /// Token enum for capturing of link URLs and Texts
 #[derive(Logos, Debug, PartialEq)]
 pub enum URLToken {
-    // TODO: Capture link definitions
+    #[regex(r#"<a[^>]*href="[^"]*"[^>]*>[^<]*</a\s*>"#, extract_link_info)]
     Link((LinkUrl, LinkText)),
 
-    // TODO: Ignore all characters that do not belong to a link definition
-    Ignored,
+    #[regex(r#"\s*<p>.*</p>\s*"#, |_| logos::Skip)]
+    Paragraf,
+    #[regex(r#"\s*<h1>.*</h1>\s*"#, |_| logos::Skip)]
+    Header,
+    #[regex(r#"\s*<head>.*</head>\s*"#, |_| logos::Skip)]
+    Head,
+    #[regex(r#"</html>\s*"#, |_| logos::Skip)]
+    Html,
+    #[regex(r#"."#, |_| logos::Skip)]
+    Doctype,
 
     // Catch any error
     #[error]
@@ -39,6 +47,15 @@ pub enum URLToken {
 
 /// Extracts the URL and text from a string that matched a Link token
 fn extract_link_info(lex: &mut Lexer<URLToken>) -> (LinkUrl, LinkText) {
-    // TODO: Implement extraction from link definition
-    todo!()
+    let mut url = String::from(lex.slice());
+    let mut offset = url.find('"').unwrap();
+    url.drain(..offset);
+    offset = url.find('"').unwrap() + 1;
+    let linkUrl = LinkUrl(url[..offset].to_string().clone());
+    url.drain(..offset);
+    offset = url.find('>').unwrap() + 1;
+    url.drain(..offset);
+    offset = url.find('<').unwrap();
+    let linkText = LinkText(url[..offset].to_string().clone());
+    (linkUrl,linkText)
 }
