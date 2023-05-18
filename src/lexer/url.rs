@@ -26,36 +26,52 @@ impl Display for LinkText {
 /// Token enum for capturing of link URLs and Texts
 #[derive(Logos, Debug, PartialEq)]
 pub enum URLToken {
-    #[regex(r#"<a[^>]*href="[^"]*"[^>]*>[^<]*</a\s*>"#, extract_link_info)]
+    #[regex(r#"href=[^>]*>[^<]*"#, extract_link_info)]
     Link((LinkUrl, LinkText)),
 
-    #[regex(r#"\s*<p>.*</p>\s*"#, |_| logos::Skip)]
+    #[regex(r#"(<p[^>]*>|</p>)[^<]*"#)]
     Paragraf,
-    #[regex(r#"\s*<h1>.*</h1>\s*"#, |_| logos::Skip)]
+    #[regex(r#"(<h1[^>]*>|</h1>)[^<]*"#)]
     Header,
-    #[regex(r#"\s*<head>.*</head>\s*"#, |_| logos::Skip)]
+    #[regex(r#"<head>([^<]|<meta|<title|</title)*</head>\s*"#)]
     Head,
-    #[regex(r#"</html>\s*"#, |_| logos::Skip)]
+    #[regex(r#"</html>\s*"#)]
     Html,
-    #[regex(r#"<![^<]*<html>"#, |_| logos::Skip)]
+    #[regex(r#"<![^<]*<html>\s*"#)]
     Doctype,
+    #[regex(r#"(<body[^>]*>|</body>)[^<]*"#)]
+    Body,
+    #[regex(r#"(<a |</a\s*>[^<]*)"#)]
+    A,
+    #[regex(r#"name="[^"]*"\s*"#)]
+    Name,
+    #[regex(r#">[^<]*"#)]
+    Rest,
 
     // Catch any error
     #[error]
     Error,
+
 }
 
 /// Extracts the URL and text from a string that matched a Link token
 fn extract_link_info(lex: &mut Lexer<URLToken>) -> (LinkUrl, LinkText) {
     let mut url = String::from(lex.slice());
-    let mut offset = url.find('"').unwrap();
+
+    let mut offset = url.find("href").unwrap();
     url.drain(..offset);
-    offset = url.find('"').unwrap() + 1;
+
+    let mut offset = url.find('"').unwrap() + 1;
+    url.drain(..offset);
+
+    offset = url.find('"').unwrap();
     let linkUrl = LinkUrl(url[..offset].to_string().clone());
     url.drain(..offset);
+
     offset = url.find('>').unwrap() + 1;
     url.drain(..offset);
-    offset = url.find('<').unwrap();
-    let linkText = LinkText(url[..offset].to_string().clone());
+
+    let linkText = LinkText(url[..].to_string().clone());
+
     (linkUrl,linkText)
 }
